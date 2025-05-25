@@ -23,7 +23,7 @@ export function zodValidation(schema: ZodSchema) {
           throw new AppError(`Validation failed: ${message}`, StatusCodes.BAD_REQUEST);
         }
 
-        throw new Error(`Validation failed: ${error.message}`);
+        throw new AppError(`Validation failed: ${error.message}`, StatusCodes.BAD_REQUEST);
       }
     };
 
