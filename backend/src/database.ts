@@ -6,6 +6,7 @@ import { ITypes } from "#shared/types/inversify.type.js";
 
 const logger = AppLogger.createLogger("Database");
 const prisma = container.get<PrismaClient>(ITypes.PrismaClient);
+const userCache = container.get<CacheClient>(ITypes.UserCache);
 
 export function databaseConnection() {
   prisma
@@ -13,8 +14,7 @@ export function databaseConnection() {
     .then(() => {
       logger.info("Connected to SQL database with Prisma");
 
-      const cacheClient = container.get<CacheClient>(ITypes.CacheClient);
-      cacheClient.connect();
+      userCache.connect();
     })
     .catch((error) => {
       logger.error("Failed to connect to SQL database", error);

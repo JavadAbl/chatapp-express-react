@@ -4,7 +4,6 @@ import { createClient } from "redis";
 
 export abstract class BaseCache {
   client: ReturnType<typeof createClient>;
-  config = config;
   logger;
 
   constructor(cacheName: string) {
@@ -12,6 +11,7 @@ export abstract class BaseCache {
 
     this.client = createClient({
       url: config.REDIS_URL || "redis://localhost:6379",
+      commandOptions: { abortSignal: new AbortController().signal },
     });
 
     this.client.on("error", (err) => {

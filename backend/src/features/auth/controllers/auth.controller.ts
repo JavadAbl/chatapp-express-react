@@ -4,6 +4,7 @@ import { RegisterDTO, RegisterScheme } from "../schemes/register.scheme.js";
 import { inject, injectable } from "inversify";
 import { ITypes } from "#shared/types/inversify.type.js";
 import { zodValidation } from "#shared/decorators/zod-validation.decorator.js";
+import { StatusCodes } from "http-status-codes";
 
 @injectable()
 export class AuthController {
@@ -14,6 +15,6 @@ export class AuthController {
   public async register(req: Request<unknown, unknown, RegisterDTO>, res: Response) {
     const newUser = await this.authService.register(req.body);
 
-    res.status(201).json(newUser);
+    res.status(StatusCodes.CREATED).json(newUser);
   }
 }

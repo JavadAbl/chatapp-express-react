@@ -1,6 +1,6 @@
 export const ITypes = {
   PrismaClient: Symbol.for("PrismaClient"),
-  CacheClient: Symbol.for("CacheClient"),
+  UserCache: Symbol.for("UserCache"),
 
   AuthController: Symbol.for("AuthController"),
   AuthService: Symbol.for("AuthService"),

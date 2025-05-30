@@ -11,10 +11,14 @@ import { writeFile, mkdir, access, constants } from "fs/promises";
 import { join } from "path";
 import { AppHelper } from "#shared/helpers/app-helper.js";
 import { LoginDTO } from "../schemes/login.scheme.js";
+import { UserCache } from "#shared/redis/user.cache.js";
 
 @injectable()
 export class AuthService implements AuthServiceInterface {
-  constructor(@inject(ITypes.PrismaClient) private readonly prisma: PrismaClient) {}
+  constructor(
+    @inject(ITypes.PrismaClient) private readonly prisma: PrismaClient,
+    @inject(ITypes.UserCache) private readonly userCache: UserCache,
+  ) {}
 
   //login---------------------------------------------------
   async login(loginDTO: LoginDTO): Promise<UserDTO> {
@@ -39,7 +43,10 @@ export class AuthService implements AuthServiceInterface {
     if (!newUser) throw new AppError("User not created", StatusCodes.INTERNAL_SERVER_ERROR);
 
     newUser.profileImage = profileImage ?? null;
-    return newUser;
+
+    await this.userCache.setUser(newUser.uid, newUser.id, newUser);
+
+    return UserDTOSchema.parse(newUser);
   }
 
   //createProfileImage---------------------------------------------
@@ -75,17 +82,17 @@ export class AuthService implements AuthServiceInterface {
   }
 
   //createUser---------------------------------------------------
-  private async createUser(registerDTO: RegisterDTO): Promise<UserDTO> {
+  private async createUser(registerDTO: RegisterDTO): Promise<User> {
     const hashedPassword = await this.hashPassword(registerDTO.password);
 
-    const user = await this.prisma.user.create({
+    const user: User = await this.prisma.user.create({
       data: {
         ...registerDTO,
         password: hashedPassword,
       },
     });
 
-    return UserDTOSchema.parse(user);
+    return user;
   }
 
   //hashPassword---------------------------------------------
